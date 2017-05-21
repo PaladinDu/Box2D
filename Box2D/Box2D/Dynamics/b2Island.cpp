@@ -202,6 +202,9 @@ void b2Island::Solve(b2Profile* profile, const b2TimeStep& step, const b2Vec2& g
 
 		if (b->m_type == b2_dynamicBody)
 		{
+            //改变线性速度于旋转
+            //线性速度受重力与综合力产生的加速度影响
+            //旋转由力矩产生
 			// Integrate velocities.
 			v += h * (b->m_gravityScale * gravity + b->m_invMass * b->m_force);
 			w += h * b->m_invI * b->m_torque;
@@ -213,6 +216,7 @@ void b2Island::Solve(b2Profile* profile, const b2TimeStep& step, const b2Vec2& g
 			// v2 = exp(-c * dt) * v1
 			// Pade approximation:
 			// v2 = v1 * 1 / (1 + c * dt)
+            //计算力阻，这里的力阻并不是碰撞体之间的摩擦力，这里更像是空气摩擦产生的力阻
 			v *= 1.0f / (1.0f + h * b->m_linearDamping);
 			w *= 1.0f / (1.0f + h * b->m_angularDamping);
 		}
@@ -254,7 +258,7 @@ void b2Island::Solve(b2Profile* profile, const b2TimeStep& step, const b2Vec2& g
 	}
 
 	profile->solveInit = timer.GetMilliseconds();
-
+    //joint产生的速度影响 ，将一个显示针分为多个更细的时间片进行碰撞，会更精准
 	// Solve velocity constraints
 	timer.Reset();
 	for (int32 i = 0; i < step.velocityIterations; ++i)
@@ -270,7 +274,7 @@ void b2Island::Solve(b2Profile* profile, const b2TimeStep& step, const b2Vec2& g
 	// Store impulses for warm starting
 	contactSolver.StoreImpulses();
 	profile->solveVelocity = timer.GetMilliseconds();
-
+    //将多个受力点中和起来，这里限制的最大速度和旋转速度
 	// Integrate positions
 	for (int32 i = 0; i < m_bodyCount; ++i)
 	{
@@ -303,7 +307,7 @@ void b2Island::Solve(b2Profile* profile, const b2TimeStep& step, const b2Vec2& g
 		m_velocities[i].v = v;
 		m_velocities[i].w = w;
 	}
-
+    //joint产生的位置影响
 	// Solve position constraints
 	timer.Reset();
 	bool positionSolved = false;
@@ -340,7 +344,8 @@ void b2Island::Solve(b2Profile* profile, const b2TimeStep& step, const b2Vec2& g
 	profile->solvePosition = timer.GetMilliseconds();
 
 	Report(contactSolver.m_velocityConstraints);
-
+    //如果允许sleep ，碰撞体将在保持 一段时间内改变极小 后标记为不活跃状态，
+    //不活跃的碰撞体需要活跃的碰撞体进行激活才会参加碰撞计算
 	if (allowSleep)
 	{
 		float32 minSleepTime = b2_maxFloat;
@@ -404,7 +409,7 @@ void b2Island::SolveTOI(const b2TimeStep& subStep, int32 toiIndexA, int32 toiInd
 	contactSolverDef.positions = m_positions;
 	contactSolverDef.velocities = m_velocities;
 	b2ContactSolver contactSolver(&contactSolverDef);
-
+    //多个时间片检测，知道他已经碰撞了，甚至已经穿越了
 	// Solve position constraints.
 	for (int32 i = 0; i < subStep.positionIterations; ++i)
 	{
@@ -457,7 +462,7 @@ void b2Island::SolveTOI(const b2TimeStep& subStep, int32 toiIndexA, int32 toiInd
 	// No warm starting is needed for TOI events because warm
 	// starting impulses were applied in the discrete solver.
 	contactSolver.InitializeVelocityConstraints();
-
+    //在这里就将碰撞的速度影响改变，以防止下一针直接穿越
 	// Solve velocity constraints.
 	for (int32 i = 0; i < subStep.velocityIterations; ++i)
 	{

@@ -165,10 +165,10 @@ void b2DistanceJoint::SolveVelocityConstraints(const b2SolverData& data)
 	b2Vec2 vpA = vA + b2Cross(wA, m_rA);
 	b2Vec2 vpB = vB + b2Cross(wB, m_rB);
 	float32 Cdot = b2Dot(m_u, vpB - vpA);
-
+    //m_u 是两个碰撞体的中心位置的相对位移，impulse是产生的加速度的大小，
+    //m_impulse 为中和力 ，m_bias 为压力 ，Cdot为速度差产生的力
 	float32 impulse = -m_mass * (Cdot + m_bias + m_gamma * m_impulse);
 	m_impulse += impulse;
-
 	b2Vec2 P = impulse * m_u;
 	vA -= m_invMassA * P;
 	wA -= m_invIA * b2Cross(m_rA, P);

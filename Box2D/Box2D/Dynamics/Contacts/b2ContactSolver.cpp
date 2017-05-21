@@ -313,7 +313,7 @@ void b2ContactSolver::SolveVelocityConstraints()
 		float32 friction = vc->friction;
 
 		b2Assert(pointCount == 1 || pointCount == 2);
-
+        //更具关节的接触点（切线）初步计算两者之间的相互影响，动量守恒
 		// Solve tangent constraints first because non-penetration is more important
 		// than friction.
 		for (int32 j = 0; j < pointCount; ++j)
@@ -342,7 +342,7 @@ void b2ContactSolver::SolveVelocityConstraints()
 			vB += mB * P;
 			wB += iB * b2Cross(vcp->rB, P);
 		}
-
+        //解决一般约束
 		// Solve normal constraints
 		if (pointCount == 1 || g_blockSolve == false)
 		{

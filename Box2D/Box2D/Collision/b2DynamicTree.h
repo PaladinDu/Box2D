@@ -170,7 +170,7 @@ inline void b2DynamicTree::Query(T* callback, const b2AABB& aabb) const
 {
 	b2GrowableStack<int32, 256> stack;
 	stack.Push(m_root);
-
+    
 	while (stack.GetCount() > 0)
 	{
 		int32 nodeId = stack.Pop();

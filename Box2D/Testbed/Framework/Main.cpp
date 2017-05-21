@@ -67,7 +67,7 @@ static void sCreateUI(GLFWwindow* window)
 	ui.showMenu = true;
 
 	// Init UI
-	const char* fontPath = "../Data/DroidSans.ttf";
+	const char* fontPath = "/Users/du/Desktop/Work/Box2D/Box2D/Build/Data/DroidSans.ttf";
 	ImGui::GetIO().Fonts->AddFontFromFileTTF(fontPath, 15.f);
 
 	if (ImGui_ImplGlfwGL3_Init(window, false) == false)
@@ -522,7 +522,7 @@ int main(int, char**)
 		ImGui::Text("%.1f ms", 1000.0 * frameTime);
 		ImGui::End();
 
-		sSimulate();
+        sSimulate();
 		sInterface();
 
 		// Measure speed

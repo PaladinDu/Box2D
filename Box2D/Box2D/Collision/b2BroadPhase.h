@@ -199,7 +199,7 @@ void b2BroadPhase::UpdatePairs(T* callback)
 		// We have to query the tree with the fat AABB so that
 		// we don't fail to create a pair that may touch later.
 		const b2AABB& fatAABB = m_tree.GetFatAABB(m_queryProxyId);
-
+        
 		// Query tree, create pairs and add them pair buffer.
 		m_tree.Query(this, fatAABB);
 	}

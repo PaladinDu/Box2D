@@ -179,7 +179,7 @@ void b2Contact::Update(b2ContactListener* listener)
 
 	// Is this contact a sensor?
 	if (sensor)
-	{
+	{//只是一个敏感元件，意思就是只检测碰撞是否发生，而不去处理碰撞事件
 		const b2Shape* shapeA = m_fixtureA->GetShape();
 		const b2Shape* shapeB = m_fixtureB->GetShape();
 		touching = b2TestOverlap(shapeA, m_indexA, shapeB, m_indexB, xfA, xfB);
@@ -189,7 +189,9 @@ void b2Contact::Update(b2ContactListener* listener)
 	}
 	else
 	{
+        //检测碰撞点，这里要注意了，并不是交点而是类似于发力点的玩意
 		Evaluate(&m_manifold, xfA, xfB);
+        //有就表示碰撞了
 		touching = m_manifold.pointCount > 0;
 
 		// Match old contact ids to new contact ids and copy the
@@ -229,7 +231,7 @@ void b2Contact::Update(b2ContactListener* listener)
 	{
 		m_flags &= ~e_touchingFlag;
 	}
-
+    
 	if (wasTouching == false && touching == true && listener)
 	{
 		listener->BeginContact(this);

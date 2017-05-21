@@ -91,17 +91,19 @@ void b2BroadPhase::UnBufferMove(int32 proxyId)
 		}
 	}
 }
-
+//发现一个可能有碰撞的匹配对
 // This is called from b2DynamicTree::Query when we are gathering pairs.
 bool b2BroadPhase::QueryCallback(int32 proxyId)
 {
 	// A proxy cannot form a pair with itself.
+    //这里很巧妙的使用了m_queryProxyId来传递新增矩形的id，
 	if (proxyId == m_queryProxyId)
 	{
 		return true;
 	}
 
 	// Grow the pair buffer as needed.
+    
 	if (m_pairCount == m_pairCapacity)
 	{
 		b2Pair* oldBuffer = m_pairBuffer;
@@ -110,10 +112,9 @@ bool b2BroadPhase::QueryCallback(int32 proxyId)
 		memcpy(m_pairBuffer, oldBuffer, m_pairCount * sizeof(b2Pair));
 		b2Free(oldBuffer);
 	}
-
+    //这里是为了让pair可以排序而进行的初始化动作
 	m_pairBuffer[m_pairCount].proxyIdA = b2Min(proxyId, m_queryProxyId);
 	m_pairBuffer[m_pairCount].proxyIdB = b2Max(proxyId, m_queryProxyId);
 	++m_pairCount;
-
 	return true;
 }

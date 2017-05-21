@@ -413,30 +413,31 @@ void b2World::Solve(const b2TimeStep& step)
 	// Build and simulate all awake islands.
 	int32 stackSize = m_bodyCount;
 	b2Body** stack = (b2Body**)m_stackAllocator.Allocate(stackSize * sizeof(b2Body*));
+    //将所有的碰撞体分割成数个互不干扰的团体，以减小计算规模
 	for (b2Body* seed = m_bodyList; seed; seed = seed->m_next)
 	{
 		if (seed->m_flags & b2Body::e_islandFlag)
-		{
+		{//已经被分配过了
 			continue;
 		}
 
 		if (seed->IsAwake() == false || seed->IsActive() == false)
-		{
+		{//必须使用活跃的碰撞体感染碰撞体
 			continue;
 		}
 
 		// The seed can be dynamic or kinematic.
 		if (seed->GetType() == b2_staticBody)
-		{
+		{//必须使用活跃的碰撞体感染碰撞体
 			continue;
 		}
-
+        
 		// Reset island and stack.
 		island.Clear();
 		int32 stackCount = 0;
 		stack[stackCount++] = seed;
 		seed->m_flags |= b2Body::e_islandFlag;
-
+        //使用深度优先的方法去感染在同一个island的碰撞体
 		// Perform a depth first search (DFS) on the constraint graph.
 		while (stackCount > 0)
 		{
@@ -444,17 +445,17 @@ void b2World::Solve(const b2TimeStep& step)
 			b2Body* b = stack[--stackCount];
 			b2Assert(b->IsActive() == true);
 			island.Add(b);
-
+            //激活碰撞体，也就是一个活跃的碰撞体会激活所有在同一个island内的碰撞体
 			// Make sure the body is awake.
 			b->SetAwake(true);
 
 			// To keep islands as small as possible, we don't
 			// propagate islands across static bodies.
 			if (b->GetType() == b2_staticBody)
-			{
+			{//静态物体不具备传染功能
 				continue;
 			}
-
+            //将所有碰撞对象加入到island中
 			// Search all contacts connected to this body.
 			for (b2ContactEdge* ce = b->m_contactList; ce; ce = ce->next)
 			{
@@ -462,14 +463,14 @@ void b2World::Solve(const b2TimeStep& step)
 
 				// Has this contact already been added to an island?
 				if (contact->m_flags & b2Contact::e_islandFlag)
-				{
+				{//已经被加到一个island中了，如果不是已经加入到本次的island中，那么就是因为其不具有感染能力
 					continue;
 				}
 
 				// Is this contact solid and touching?
 				if (contact->IsEnabled() == false ||
 					contact->IsTouching() == false)
-				{
+				{//这个碰撞是无效，或者只是轻触，不具备传染功能
 					continue;
 				}
 
@@ -477,7 +478,7 @@ void b2World::Solve(const b2TimeStep& step)
 				bool sensorA = contact->m_fixtureA->m_isSensor;
 				bool sensorB = contact->m_fixtureB->m_isSensor;
 				if (sensorA || sensorB)
-				{
+				{//不触发碰撞事件的敏感体不具备传染功能
 					continue;
 				}
 
@@ -496,7 +497,7 @@ void b2World::Solve(const b2TimeStep& step)
 				stack[stackCount++] = other;
 				other->m_flags |= b2Body::e_islandFlag;
 			}
-
+            //将关节链接的碰撞体加入到island中来
 			// Search all joints connect to this body.
 			for (b2JointEdge* je = b->m_jointList; je; je = je->next)
 			{
@@ -526,13 +527,14 @@ void b2World::Solve(const b2TimeStep& step)
 				other->m_flags |= b2Body::e_islandFlag;
 			}
 		}
-
+        //到这里island已经形成，
+        //下面
 		b2Profile profile;
 		island.Solve(&profile, step, m_gravity, m_allowSleep);
 		m_profile.solveInit += profile.solveInit;
 		m_profile.solveVelocity += profile.solveVelocity;
 		m_profile.solvePosition += profile.solvePosition;
-
+        //清除static的island标记，方便其他island使用其发生碰撞
 		// Post solve cleanup.
 		for (int32 i = 0; i < island.m_bodyCount; ++i)
 		{
@@ -897,7 +899,7 @@ void b2World::SolveTOI(const b2TimeStep& step)
 void b2World::Step(float32 dt, int32 velocityIterations, int32 positionIterations)
 {
 	b2Timer stepTimer;
-
+    //如果有新的fixture产生，查找所有可能存在的碰撞
 	// If new fixtures were added, we need to find the new contacts.
 	if (m_flags & e_newFixture)
 	{
@@ -923,25 +925,29 @@ void b2World::Step(float32 dt, int32 velocityIterations, int32 positionIteration
 	step.dtRatio = m_inv_dt0 * dt;
 
 	step.warmStarting = m_warmStarting;
-	
+	//处理所有的碰撞事件
 	// Update contacts. This is where some contacts are destroyed.
 	{
 		b2Timer timer;
 		m_contactManager.Collide();
 		m_profile.collide = timer.GetMilliseconds();
 	}
-
+    
 	// Integrate velocities, solve velocity constraints, and integrate positions.
+    //处理碰撞后产生的变化
+    
 	if (m_stepComplete && step.dt > 0.0f)
-	{
+	{//这里是可能产生新的碰撞事件的，但是只会在下一针处理
 		b2Timer timer;
 		Solve(step);
 		m_profile.solve = timer.GetMilliseconds();
 	}
-
+    //连续物理 ，避免粒子化运动产生的穿越事件
+    //需要注意的是，
+    //连续物理 只会处理标记为isBullet的碰撞体
 	// Handle TOI events.
 	if (m_continuousPhysics && step.dt > 0.0f)
-	{
+	{//这里是可能产生新的碰撞事件的，但是只会在下一针处理
 		b2Timer timer;
 		SolveTOI(step);
 		m_profile.solveTOI = timer.GetMilliseconds();

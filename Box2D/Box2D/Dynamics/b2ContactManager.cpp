@@ -114,7 +114,7 @@ void b2ContactManager::Collide()
 		int32 indexB = c->GetChildIndexB();
 		b2Body* bodyA = fixtureA->GetBody();
 		b2Body* bodyB = fixtureB->GetBody();
-		 
+        //再次检测是否需要进行碰撞。过多次的检测然我怀疑这部分的代码可以进行优化
 		// Is this contact flagged for filtering?
 		if (c->m_flags & b2Contact::e_filterFlag)
 		{
@@ -142,14 +142,14 @@ void b2ContactManager::Collide()
 
 		bool activeA = bodyA->IsAwake() && bodyA->m_type != b2_staticBody;
 		bool activeB = bodyB->IsAwake() && bodyB->m_type != b2_staticBody;
-
+        //如果双方都不活跃的话就不触发碰撞事件的处理
 		// At least one body must be awake and it must be dynamic or kinematic.
 		if (activeA == false && activeB == false)
 		{
 			c = c->GetNext();
 			continue;
 		}
-
+        //再次检测是否有碰撞。。。
 		int32 proxyIdA = fixtureA->m_proxies[indexA].proxyId;
 		int32 proxyIdB = fixtureB->m_proxies[indexB].proxyId;
 		bool overlap = m_broadPhase.TestOverlap(proxyIdA, proxyIdB);
@@ -162,7 +162,7 @@ void b2ContactManager::Collide()
 			Destroy(cNuke);
 			continue;
 		}
-
+        //到这里就可以执行碰撞事件了，只是检测碰撞点
 		// The contact persists.
 		c->Update(m_contactListener);
 		c = c->GetNext();
@@ -187,13 +187,13 @@ void b2ContactManager::AddPair(void* proxyUserDataA, void* proxyUserDataB)
 
 	b2Body* bodyA = fixtureA->GetBody();
 	b2Body* bodyB = fixtureB->GetBody();
-
+    //一个body内的fixture并不互相计算
 	// Are the fixtures on the same body?
 	if (bodyA == bodyB)
 	{
 		return;
 	}
-
+    //去除掉已经记录碰撞的Pair
 	// TODO_ERIN use a hash table to remove a potential bottleneck when both
 	// bodies have a lot of contacts.
 	// Does a contact already exist?
@@ -222,26 +222,29 @@ void b2ContactManager::AddPair(void* proxyUserDataA, void* proxyUserDataB)
 
 		edge = edge->next;
 	}
-
+    //检测是否需要检测碰撞，对于都是静态物体以及由关节连接的物体不需要进行碰撞
 	// Does a joint override collision? Is at least one body dynamic?
 	if (bodyB->ShouldCollide(bodyA) == false)
 	{
 		return;
 	}
-
+    //过滤掉用户不想要进行碰撞的物体
 	// Check user filtering.
 	if (m_contactFilter && m_contactFilter->ShouldCollide(fixtureA, fixtureB) == false)
 	{
 		return;
 	}
-
+    
 	// Call the factory.
+    //在box2d中，物体包含4种类型，圆，多边形，边缘，以及链条
+    //其中边缘与链条只会和圆盒多边形进行碰撞
 	b2Contact* c = b2Contact::Create(fixtureA, indexA, fixtureB, indexB, m_allocator);
 	if (c == NULL)
 	{
 		return;
 	}
-
+    //调整一下碰撞信息的位置，
+    //原因是碰撞事件中类型与类型的碰撞关系是有向的
 	// Contact creation may swap fixtures.
 	fixtureA = c->GetFixtureA();
 	fixtureB = c->GetFixtureB();
@@ -249,7 +252,7 @@ void b2ContactManager::AddPair(void* proxyUserDataA, void* proxyUserDataB)
 	indexB = c->GetChildIndexB();
 	bodyA = fixtureA->GetBody();
 	bodyB = fixtureB->GetBody();
-
+    //添加到碰撞链中去
 	// Insert into the world.
 	c->m_prev = NULL;
 	c->m_next = m_contactList;
@@ -259,8 +262,9 @@ void b2ContactManager::AddPair(void* proxyUserDataA, void* proxyUserDataB)
 	}
 	m_contactList = c;
 
+    //添加到body的碰撞链中，以便本方法开始部分的重复检测
 	// Connect to island graph.
-
+    
 	// Connect to body A
 	c->m_nodeA.contact = c;
 	c->m_nodeA.other = bodyB;
@@ -285,6 +289,8 @@ void b2ContactManager::AddPair(void* proxyUserDataA, void* proxyUserDataB)
 	}
 	bodyB->m_contactList = &c->m_nodeB;
 
+    //如果物体都属于非敏感状态，唤醒他们，因为他们可能要碰撞了，
+    //至于为什么必须都是非敏感状态才会唤醒，这个有待后续考察
 	// Wake up the bodies
 	if (fixtureA->IsSensor() == false && fixtureB->IsSensor() == false)
 	{

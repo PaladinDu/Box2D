@@ -43,15 +43,15 @@ public:
 		{
 			b2BodyDef bd;
 			bd.type = b2_dynamicBody;
-			bd.position.Set(0.0f, 4.0f);
+			bd.position.Set(0.0f, 2.0f);
 
 			b2PolygonShape box;
-			box.SetAsBox(2.0f, 0.1f);
+			box.SetAsBox(2.0f, 0.01f);
 
 			m_body = m_world->CreateBody(&bd);
 			m_body->CreateFixture(&box, 1.0f);
 
-			box.SetAsBox(0.25f, 0.25f);
+			box.SetAsBox(0.1f, 0.1f);
 
 			//m_x = RandomFloat(-1.0f, 1.0f);
 			m_x = 0.20352793f;
@@ -59,21 +59,21 @@ public:
 			bd.bullet = true;
 
 			m_bullet = m_world->CreateBody(&bd);
-			m_bullet->CreateFixture(&box, 100.0f);
+			m_bullet->CreateFixture(&box, 200.0f);
 
-			m_bullet->SetLinearVelocity(b2Vec2(0.0f, -50.0f));
+			m_bullet->SetLinearVelocity(b2Vec2(0.0f, -20000.0f));
 		}
 	}
 
 	void Launch()
 	{
-		m_body->SetTransform(b2Vec2(0.0f, 4.0f), 0.0f);
+		m_body->SetTransform(b2Vec2(0.5f, 2.0f), 0.0f);
 		m_body->SetLinearVelocity(b2Vec2_zero);
 		m_body->SetAngularVelocity(0.0f);
 
-		m_x = RandomFloat(-1.0f, 1.0f);
+        m_x = -0.7f;//RandomFloat(-1.0f, 1.0f);
 		m_bullet->SetTransform(b2Vec2(m_x, 10.0f), 0.0f);
-		m_bullet->SetLinearVelocity(b2Vec2(0.0f, -50.0f));
+		m_bullet->SetLinearVelocity(b2Vec2(0.0f, -20000.0f));
 		m_bullet->SetAngularVelocity(0.0f);
 
 		extern int32 b2_gjkCalls, b2_gjkIters, b2_gjkMaxIters;
