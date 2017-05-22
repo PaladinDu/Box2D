@@ -258,7 +258,7 @@ void b2Island::Solve(b2Profile* profile, const b2TimeStep& step, const b2Vec2& g
 	}
 
 	profile->solveInit = timer.GetMilliseconds();
-    //joint产生的速度影响 ，将一个显示针分为多个更细的时间片进行碰撞，会更精准
+    //joint产生的速度影响 ，进行多次迭代
 	// Solve velocity constraints
 	timer.Reset();
 	for (int32 i = 0; i < step.velocityIterations; ++i)

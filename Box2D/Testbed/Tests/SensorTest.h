@@ -46,6 +46,7 @@ public:
 				b2FixtureDef sd;
 				sd.SetAsBox(10.0f, 2.0f, b2Vec2(0.0f, 20.0f), 0.0f);
 				sd.isSensor = true;
+                
 				m_sensor = ground->CreateFixture(&sd);
 			}
 #else
@@ -57,6 +58,7 @@ public:
 				b2FixtureDef fd;
 				fd.shape = &shape;
 				fd.isSensor = true;
+            
 				m_sensor = ground->CreateFixture(&fd);
 			}
 #endif
@@ -138,7 +140,7 @@ public:
 	void Step(Settings* settings)
 	{
 		Test::Step(settings);
-
+        
 		// Traverse the contact results. Apply a force on shapes
 		// that overlap the sensor.
 		for (int32 i = 0; i < e_count; ++i)
@@ -166,13 +168,14 @@ public:
 			b2Vec2 F = 100.0f * d;
 			body->ApplyForce(F, position, false);
 		}
+        
 	}
 
 	static Test* Create()
 	{
 		return new SensorTest;
 	}
-
+    
 	b2Fixture* m_sensor;
 	b2Body* m_bodies[e_count];
 	bool m_touching[e_count];

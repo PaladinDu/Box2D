@@ -546,9 +546,9 @@ void b2World::Solve(const b2TimeStep& step)
 			}
 		}
 	}
-
+    
 	m_stackAllocator.Free(stack);
-
+    
 	{
 		b2Timer timer;
 		// Synchronize fixtures, check for out of range bodies.
@@ -564,7 +564,7 @@ void b2World::Solve(const b2TimeStep& step)
 			{
 				continue;
 			}
-
+            //更新AABB
 			// Update fixtures (for broad-phase).
 			b->SynchronizeFixtures();
 		}
@@ -895,7 +895,14 @@ void b2World::SolveTOI(const b2TimeStep& step)
 		}
 	}
 }
-
+/*
+ *@brief 处理一个逻辑片段
+ *@param dt 逻辑针的时间长度
+ *@param velocityIterations 速度计算迭代次数
+ *@note 将一个逻辑针的速度计算迭代velocityIterations次，迭代次数越多越觉真实
+ *@param positionIterations 位移计算分割次数
+ *@note 作用与velocityIterations类似
+ */
 void b2World::Step(float32 dt, int32 velocityIterations, int32 positionIterations)
 {
 	b2Timer stepTimer;
@@ -925,7 +932,7 @@ void b2World::Step(float32 dt, int32 velocityIterations, int32 positionIteration
 	step.dtRatio = m_inv_dt0 * dt;
 
 	step.warmStarting = m_warmStarting;
-	//处理所有的碰撞事件
+	//查找所有真实碰撞，并初始化一些一些信息
 	// Update contacts. This is where some contacts are destroyed.
 	{
 		b2Timer timer;

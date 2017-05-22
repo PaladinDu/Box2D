@@ -59,10 +59,15 @@ public:
 			bd.bullet = true;
 
 			m_bullet = m_world->CreateBody(&bd);
-			m_bullet->CreateFixture(&box, 200.0f);
-
+			b2Fixture* f = m_bullet->CreateFixture(&box, 200.0f);
 			m_bullet->SetLinearVelocity(b2Vec2(0.0f, -20000.0f));
-		}
+            m_x = 0.20352793f;
+            bd.position.Set(m_x, 3.0f);
+            
+            m_bullet2 = m_world->CreateBody(&bd);
+            m_bullet2->CreateFixture(&box, 200.0f);
+          
+        }
 	}
 
 	void Launch()
@@ -75,7 +80,11 @@ public:
 		m_bullet->SetTransform(b2Vec2(m_x, 10.0f), 0.0f);
 		m_bullet->SetLinearVelocity(b2Vec2(0.0f, -20000.0f));
 		m_bullet->SetAngularVelocity(0.0f);
-
+        
+        m_x = -0.7f;//RandomFloat(-1.0f, 1.0f);
+        m_bullet2->SetTransform(b2Vec2(m_x, 3.0f), 0.0f);
+        m_bullet2->SetAngularVelocity(0.0f);
+        
 		extern int32 b2_gjkCalls, b2_gjkIters, b2_gjkMaxIters;
 		extern int32 b2_toiCalls, b2_toiIters, b2_toiMaxIters;
 		extern int32 b2_toiRootIters, b2_toiMaxRootIters;
@@ -130,6 +139,7 @@ public:
 
 	b2Body* m_body;
 	b2Body* m_bullet;
+    b2Body* m_bullet2;
 	float32 m_x;
 };
 
