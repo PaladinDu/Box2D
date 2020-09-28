@@ -20,10 +20,10 @@
 #define CAR_H
 
 // This is a fun demo that shows off the wheel joint
-class Car : public Test
+class Walk : public Test
 {
 public:
-	Car()
+	Walk()
 	{		
 		m_hz = 4.0f;
 		m_zeta = 0.7f;
@@ -269,7 +269,7 @@ public:
 
 	static Test* Create()
 	{
-		return new Car;
+		return new Walk;
 	}
 
 	b2Body* m_car;

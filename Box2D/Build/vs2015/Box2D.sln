@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 14
-VisualStudioVersion = 14.0.25123.0
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.30002.166
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Box2D", "Box2D.vcxproj", "{98400D17-43A5-1A40-95BE-C53AC78E7694}"
 EndProject
@@ -21,6 +21,8 @@ EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "glew", "glew.vcxproj", "{CDD714DD-7F18-4478-9DD3-72369869ACEF}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "imgui", "imgui.vcxproj", "{542D8CF8-03FC-43BB-9586-D95E98150A56}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Walk", "Walk\Walk.vcxproj", "{6306BEE6-86CB-4467-81CB-02BE36F4DCE0}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -78,8 +80,19 @@ Global
 		{542D8CF8-03FC-43BB-9586-D95E98150A56}.Release|Win32.Build.0 = Release|Win32
 		{542D8CF8-03FC-43BB-9586-D95E98150A56}.Release|x64.ActiveCfg = Release|x64
 		{542D8CF8-03FC-43BB-9586-D95E98150A56}.Release|x64.Build.0 = Release|x64
+		{6306BEE6-86CB-4467-81CB-02BE36F4DCE0}.Debug|Win32.ActiveCfg = Debug|Win32
+		{6306BEE6-86CB-4467-81CB-02BE36F4DCE0}.Debug|Win32.Build.0 = Debug|Win32
+		{6306BEE6-86CB-4467-81CB-02BE36F4DCE0}.Debug|x64.ActiveCfg = Debug|x64
+		{6306BEE6-86CB-4467-81CB-02BE36F4DCE0}.Debug|x64.Build.0 = Debug|x64
+		{6306BEE6-86CB-4467-81CB-02BE36F4DCE0}.Release|Win32.ActiveCfg = Release|Win32
+		{6306BEE6-86CB-4467-81CB-02BE36F4DCE0}.Release|Win32.Build.0 = Release|Win32
+		{6306BEE6-86CB-4467-81CB-02BE36F4DCE0}.Release|x64.ActiveCfg = Release|x64
+		{6306BEE6-86CB-4467-81CB-02BE36F4DCE0}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {7F8E1F7F-448D-4212-997D-40780DD90EB7}
 	EndGlobalSection
 EndGlobal

@@ -99,7 +99,7 @@ TestEntry g_testEntries[] =
 	{"Edge Test", EdgeTest::Create},
 	{"Body Types", BodyTypes::Create},
 	{"Shape Editing", ShapeEditing::Create},
-	{"Car", Car::Create},
+	{"Car", Walk::Create},
 	{"Prismatic", Prismatic::Create},
 	{"Revolute", Revolute::Create},
 	{"Pulleys", Pulleys::Create},
